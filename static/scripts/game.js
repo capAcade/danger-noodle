@@ -4,7 +4,7 @@ export default class DangerNoodle {
             type: Phaser.AUTO,
             width: 1280,
             height: 1024,
-            backgroundColor: '#fff',
+            backgroundColor: '#ff69b4',
             parent: 'danger-noodle',
             scene: {
                 preload: this.preload,
@@ -21,32 +21,42 @@ export default class DangerNoodle {
         this.cursors = [];
     }
 
-    preload () {
+    preload() {
         this.load.image('snake', 'static/assets/snake.png');
         this.load.image('food', 'static/assets/food.png');
     }
-    
-    create () {
 
-        let Food = new Phaser.Class ({
-        
+    create() {
+
+        let Food = new Phaser.Class({
+
             Extends: Phaser.GameObjects.Image,
 
-            initialize: function food(scene, x, y){
+            initialize: function food(scene, x, y) {
                 Phaser.GameObjects.Image.call(this, scene)
 
-            this.setTexture('food');
-            this.setPosition(x * 16, y * 16);
-            this.setOrigin(0);
+                this.setTexture('food');
+                this.setPosition(x * 16, y * 16);
+                this.setOrigin(0);
 
-            this.total = 0;
+                this.total = 0;
 
-            scene.children.add(this);
+                scene.children.add(this);
+            },
+
+            eat: function () {
+                this.total++;
+
+                var x = Phaser.Math.Between(0, 39);
+                var y = Phaser.Math.Between(0, 29);
+
+                this.setPosition(x * 16, y * 16);
             }
+
         });
 
         let Snake = new Phaser.Class({
-            initialize: function Snake (scene, x, y) {
+            initialize: function Snake(scene, x, y) {
                 this.headPosition = new Phaser.Geom.Point(x, y);
                 this.body = scene.add.group();
                 this.head = this.body.create(this.headPosition.x * BLOCK_SIZE, this.headPosition.y * BLOCK_SIZE, 'snake');
@@ -56,6 +66,7 @@ export default class DangerNoodle {
                 this.moveTime = 0;
                 this.heading = RIGHT;
                 this.direction = RIGHT;
+                this.tail = new Phaser.Geom.Point(x, y);
             },
             update: function (time) {
                 if (time >= this.moveTime) {
@@ -84,13 +95,13 @@ export default class DangerNoodle {
             },
             move: function (time) {
                 /**
-                * Based on the heading property (which is the direction the pgroup pressed)
-                * we update the headPosition value accordingly.
-                * 
-                * The Math.wrap call allow the snake to wrap around the screen, so when
-                * it goes off any of the sides it re-appears on the other.
-                */
-                switch (this.heading)  {
+                 * Based on the heading property (which is the direction the pgroup pressed)
+                 * we update the headPosition value accordingly.
+                 * 
+                 * The Math.wrap call allow the snake to wrap around the screen, so when
+                 * it goes off any of the sides it re-appears on the other.
+                 */
+                switch (this.heading) {
                     case LEFT:
                         this.headPosition.x = Phaser.Math.Wrap(this.headPosition.x - 1, 0, 159);
                         break;
@@ -117,28 +128,46 @@ export default class DangerNoodle {
                 this.moveTime = time + this.speed;
 
                 return true;
+            },
+
+            grow: function () {
+                var newPart = this.body.create(this.tail.x, this.tail.y, 'snake');
+
+                newPart.setOrigin(0);
+            },
+
+            collideWithFood: function (food) {
+                if (this.head.x === food.x && this.head.y === food.y) {
+                    this.grow();
+
+                    food.eat();
+
+                    return true;
+                } else {
+                    return false;
+                }
             }
 
         });
-        this.food = new Food (this, 5, 13);
+        this.food = new Food(this, 5, 13);
         this.snake = new Snake(this, 8, 8);
 
         //  Create our keyboard controls
         this.cursors = this.input.keyboard.createCursorKeys();
     }
 
-    update (time, delta) {
+    update(time, delta) {
         if (!this.snake.alive) {
             return;
         }
 
         /**
-        * Check which key is pressed, and then change the direction the snake
-        * is heading based on that. The checks ensure you don't double-back
-        * on yourself, for example if you're moving to the right and you press
-        * the LEFT cursor, it ignores it, because the only valid directions you
-        * can move in at that time is up and down.
-        */
+         * Check which key is pressed, and then change the direction the snake
+         * is heading based on that. The checks ensure you don't double-back
+         * on yourself, for example if you're moving to the right and you press
+         * the LEFT cursor, it ignores it, because the only valid directions you
+         * can move in at that time is up and down.
+         */
         if (this.cursors.left.isDown) {
             this.snake.faceLeft();
         } else if (this.cursors.right.isDown) {
@@ -149,7 +178,9 @@ export default class DangerNoodle {
             this.snake.faceDown();
         }
 
-        this.snake.update(time);
+        if (this.snake.update(time)) {
+            this.snake.collideWithFood(this.food);
+        }
     }
 }
 
