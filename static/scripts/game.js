@@ -4,7 +4,7 @@ export default class DangerNoodle {
             type: Phaser.AUTO,
             width: 1280,
             height: 1024,
-            backgroundColor: '#bfcc00',
+            backgroundColor: '#fff',
             parent: 'danger-noodle',
             scene: {
                 preload: this.preload,
@@ -16,20 +16,40 @@ export default class DangerNoodle {
 
     constructor() {
         this.game = new Phaser.Game(this.config)
-        this.snake = {}
+        this.snake = {};
+        this.food = {};
         this.cursors = [];
     }
 
     preload () {
-        this.load.image('snake', 'assets/snake.png');
+        this.load.image('snake', 'static/assets/snake.png');
+        this.load.image('food', 'static/assets/food.png');
     }
     
     create () {
+
+        let Food = new Phaser.Class ({
+        
+            Extends: Phaser.GameObjects.Image,
+
+            initialize: function food(scene, x, y){
+                Phaser.GameObjects.Image.call(this, scene)
+
+            this.setTexture('food');
+            this.setPosition(x * 16, y * 16);
+            this.setOrigin(0);
+
+            this.total = 0;
+
+            scene.children.add(this);
+            }
+        });
+
         let Snake = new Phaser.Class({
             initialize: function Snake (scene, x, y) {
                 this.headPosition = new Phaser.Geom.Point(x, y);
                 this.body = scene.add.group();
-                this.head = this.body.create(this.headPosition.x * BLOCK_SIZE, this.headPosition.y * BLOCK_SIZE, 'body');
+                this.head = this.body.create(this.headPosition.x * BLOCK_SIZE, this.headPosition.y * BLOCK_SIZE, 'snake');
                 this.head.setOrigin(0);
                 this.alive = true;
                 this.speed = 66;
@@ -100,7 +120,7 @@ export default class DangerNoodle {
             }
 
         });
-
+        this.food = new Food (this, 5, 13);
         this.snake = new Snake(this, 8, 8);
 
         //  Create our keyboard controls
