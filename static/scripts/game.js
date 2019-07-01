@@ -4,7 +4,7 @@ export default class DangerNoodle {
             type: Phaser.AUTO,
             width: 1280,
             height: 1024,
-            backgroundColor: '#ff69b4',
+            backgroundColor: '#bfcc80',
             parent: 'danger-noodle',
             scene: {
                 preload: this.preload,
@@ -36,7 +36,7 @@ export default class DangerNoodle {
                 Phaser.GameObjects.Image.call(this, scene)
 
                 this.setTexture('food');
-                this.setPosition(x * 16, y * 16);
+                this.setPosition(x * BLOCK_SIZE, y * BLOCK_SIZE);
                 this.setOrigin(0);
 
                 this.total = 0;
@@ -47,10 +47,10 @@ export default class DangerNoodle {
             eat: function () {
                 this.total++;
 
-                var x = Phaser.Math.Between(0, 39);
-                var y = Phaser.Math.Between(0, 29);
+                var x = Phaser.Math.Between(0, 79);
+                var y = Phaser.Math.Between(0, 63);
 
-                this.setPosition(x * 16, y * 16);
+                this.setPosition(x * BLOCK_SIZE, y * BLOCK_SIZE);
             }
 
         });
@@ -59,10 +59,10 @@ export default class DangerNoodle {
             initialize: function Snake(scene, x, y) {
                 this.headPosition = new Phaser.Geom.Point(x, y);
                 this.body = scene.add.group();
-                this.head = this.body.create(this.headPosition.x * BLOCK_SIZE, this.headPosition.y * BLOCK_SIZE, 'snake');
+                this.head = this.body.create(1 + this.headPosition.x * BLOCK_SIZE, 1 + this.headPosition.y * BLOCK_SIZE, 'snake');
                 this.head.setOrigin(0);
                 this.alive = true;
-                this.speed = 66;
+                this.speed = 100;
                 this.moveTime = 0;
                 this.heading = RIGHT;
                 this.direction = RIGHT;
@@ -103,19 +103,19 @@ export default class DangerNoodle {
                  */
                 switch (this.heading) {
                     case LEFT:
-                        this.headPosition.x = Phaser.Math.Wrap(this.headPosition.x - 1, 0, 159);
+                        this.headPosition.x = Phaser.Math.Wrap(this.headPosition.x - 1, 0, 80);
                         break;
 
                     case RIGHT:
-                        this.headPosition.x = Phaser.Math.Wrap(this.headPosition.x + 1, 0, 159);
+                        this.headPosition.x = Phaser.Math.Wrap(this.headPosition.x + 1, 0, 80);
                         break;
 
                     case UP:
-                        this.headPosition.y = Phaser.Math.Wrap(this.headPosition.y - 1, 0, 127);
+                        this.headPosition.y = Phaser.Math.Wrap(this.headPosition.y - 1, 0, 64);
                         break;
 
                     case DOWN:
-                        this.headPosition.y = Phaser.Math.Wrap(this.headPosition.y + 1, 0, 127);
+                        this.headPosition.y = Phaser.Math.Wrap(this.headPosition.y + 1, 0, 64);
                         break;
                 }
 
@@ -188,6 +188,6 @@ const UP = 0;
 const DOWN = 1;
 const LEFT = 2;
 const RIGHT = 3;
-const BLOCK_SIZE = 8;
+const BLOCK_SIZE = 16;
 
 let dangerNoodle = new DangerNoodle()
