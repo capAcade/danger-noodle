@@ -27,5 +27,10 @@
   "bugs": {
     "url": "https://github.com/capAcade/danger-noodle/issues"
   },
-  "homepage": "https://github.com/capAcade/danger-noodle#readme"
+  "homepage": "https://github.com/capAcade/danger-noodle#readme",
+  "eslintConfig": {
+    "parserOptions": { 
+      "ecmaVersion": 6 
+    }
+  }
 }
